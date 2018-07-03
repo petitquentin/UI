@@ -6,32 +6,10 @@ Created on Mon Jul  2 15:42:00 2018
 @author: qpetit
 """
 
+import re
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
-
-def parametre_canvas():
-    fenetreParametre=Toplevel(fenetre)
-    taille = ""
-    titre_parametre = Label(fenetreParametre, text="Résolution du graphique")
-    choix_1920 = Radiobutton(fenetreParametre, text="1920x1080", variable=taille, value="1920x1080")
-    choix_1366 = Radiobutton(fenetreParametre, text="1366x768", variable=taille, value="1366x768")
-    choix_800 = Radiobutton(fenetreParametre, text="800x600", variable=taille, value="800x600")
-    choix_400 = Radiobutton(fenetreParametre, text="400x300", variable=taille, value="400x300")
-    choix_perso = Radiobutton(fenetreParametre, text="Personnalisée", variable=taille, value="perso")
-    var_abs = StringVar()
-    ligne_abs = Entry(fenetreParametre, textvariable=var_abs, width=5)
-    var_ord = StringVar()
-    ligne_ord = Entry(fenetreParametre, textvariable=var_ord, width=5)
-    titre_parametre.pack(side=LEFT)
-    choix_1920.pack(side=LEFT)
-    choix_1366.pack(side=LEFT)
-    choix_800.pack(side=LEFT)
-    choix_400.pack(side=LEFT)
-    choix_perso.pack(side=LEFT)
-    ligne_abs.pack(side=LEFT)
-    ligne_ord.pack(side=LEFT)
-    
 
 def alert():
     messagebox.showinfo("Say Hello", "Hello World")
@@ -48,6 +26,8 @@ def mise_a_jour_interface():
         text_2=can.create_text(250,30,text="Pas de fichier 2",fill="red")
     fenetre.update_idletasks()
         
+
+    
 
 def ouvrir_fichier1():
     global fichier1 
