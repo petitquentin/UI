@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul  3 08:55:49 2018
+Created on Thu Jul  5 18:30:36 2018
 
 @author: qpetit
 """
+
+# The code for changing pages was derived from: http://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
+# License: http://creativecommons.org/licenses/by-sa/3.0/	
 
 import matplotlib
 matplotlib.use("TkAgg")
@@ -132,4 +135,3 @@ class PageThree(tk.Frame):
 
 app = SeaofBTCapp()
 app.mainloop()
-        
