@@ -50,23 +50,24 @@ def generation_graphe():
     plt.subplot(1, 1, 1)
     if dimension == 2:
         if fichier1 != "":
-            plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o')
+            plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o', s = 200, label="Original solution")
             graphique = True
         if fichier2 != "":
-            plt.scatter(reel2, imaginaire2, c = 'red', marker = '+')
+            plt.scatter(reel2, imaginaire2, c = 'red', marker = '+', s = 200, label="Final solution")
             graphique = True
         
     else:
         if dimension == 1:
             
             if fichier1 != "":
-                plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o')
+                plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o', s = 200, label="Original solution")
                 graphique = True
             if fichier2 != "":
-                plt.scatter(reel2, imaginaire2, c = 'red', marker = '+')
+                plt.scatter(reel2, imaginaire2, c = 'red', marker = '+', s = 200, label="Final solution")
                 graphique = True
     if graphique == True :
-        plt.savefig('data/graphic_brut.png', dpi=1000)
+        plt.legend(loc='best')
+        plt.savefig('data/graphic_brut.png', dpi=500)
         plt.show()
     
     
@@ -90,14 +91,20 @@ def affichage_fichier():
         return
     
     
+    
+
+    
     if graphique == True :
         can_plot.delete(ALL)
         graph_origin = PIL.Image.open('data/graphic_brut.png')
-        graph_reduit = graph_origin.resize((h,l))
-        
+        graph_reduit = graph_origin.resize((h,l))        
         img = PIL.ImageTk.PhotoImage(graph_reduit)
-        item = can_plot.create_image(0, 0, image=img)
-        can_plot.pack()
+        dic['image']= img
+        item = can_plot.create_image(h/2, l/2, image=img)
+#        mon_image=PhotoImage(file=r"smiley.gif")
+#        dic['image']= mon_image
+#        img=can_plot.create_image(250,250,image=mon_image)
+        
         fenetre.update_idletasks()
         fenetre.update()
         
@@ -148,7 +155,6 @@ def lecture_fichier():
                                 
             np.savetxt(r'data/r1.vec', reel1)
             np.savetxt(r'data/i1.vec', imaginaire1)
-            messagebox.showinfo("Information","Chargement fichier 1 semble ok!")
         else:                
             messagebox.showwarning("Erreur","Le fichier 1 n'est pas chargé")   
         
@@ -181,11 +187,10 @@ def lecture_fichier():
                                 imaginaire2.append(Decimal(donnees[2]))
                                 print("tableau imaginaire : ",imaginaire2)
                             else:
-                                imaginaire1.append(0)
+                                imaginaire2.append(0)
                                 
             np.savetxt(r'data/r2.vec', reel2)
             np.savetxt(r'data/i2.vec', imaginaire2)
-            messagebox.showinfo("Information","Chargement fichier 2 semble ok!")
         else:                
             messagebox.showwarning("Erreur","Le fichier 2 n'est pas chargé")
         generation_graphe()
@@ -221,7 +226,7 @@ def ouvrir_fichier2():
     if fichier1 == "" and fichier2 != "":
         answer = messagebox.askyesno("Ouvrir fichier Initial","Voulez-vous ouvrir le fichier Initial maintenant ?")
         if answer == True:
-            ouvrir_fichier1
+            ouvrir_fichier1()
     mise_a_jour_interface()
     
 def reinitialisation():
@@ -231,8 +236,11 @@ def reinitialisation():
     fichier2 = ""
     can.delete(ALL)
     graphique = False
-    text_1=can.create_text(250,10,text="Warning : No original file selected",fill="red")
-    text_2=can.create_text(250,30,text="Warning : No final file selected",fill="red")
+    text_1=can.create_text(400,10,text="Warning : No original file selected",fill="red")
+    text_2=can.create_text(400,30,text="Warning : No final file selected",fill="red")
+    
+    can_plot.delete(ALL)
+    text_image =can_plot.create_text(400, 300, text="please select a file then click on Run (File->Run)")
 
 def ouverture_menu(fenetre):
     menubar = Menu(fenetre)
@@ -254,12 +262,15 @@ def ouverture_menu(fenetre):
     
     #On créé le menu déroulant 3 : Aide
     menu3 = Menu(menubar, tearoff=0)
-    menu3.add_command(label="About...", command=alert)
+    menu3.add_command(label="About...", command=about)
     menubar.add_cascade(label="Help", menu=menu3)
     
     fenetre.config(menu=menubar)
     
-    
+def about():
+    messagebox.showinfo("About...", "Implementation of a user interface for the SMG2S project: https://github.com/brunowu/SMG2S")
+    return
+
 
 #On ouvre la fenetre graphique de TKinter
 fenetre = Tk()
@@ -268,7 +279,9 @@ fenetre.configure(bg = "white")
 fichier1 = ""
 fichier2 = ""
 dimension = 0
+dic={}
 
+sauvegarde = False
 graphique = False
 reel1 = []
 imaginaire1 = []
