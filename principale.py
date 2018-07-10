@@ -8,19 +8,8 @@ Created on Mon Jul  2 15:42:00 2018
 
 import PIL.Image
 import PIL.ImageTk
-import os
-import re
-import random
-import numpy as np
 from tkinter import *
 from tkinter import messagebox
-from tkinter import filedialog
-from decimal import *
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from matplotlib.figure import Figure
-import matplotlib.backends.tkagg as tkagg
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
 #Importation des fichiers .py présent dans le dossier 
