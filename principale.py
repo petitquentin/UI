@@ -8,6 +8,7 @@ Created on Mon Jul  2 15:42:00 2018
 
 import PIL.Image
 import PIL.ImageTk
+import os
 import re
 import random
 import numpy as np
@@ -21,59 +22,48 @@ from matplotlib.figure import Figure
 import matplotlib.backends.tkagg as tkagg
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+
+#Importation des fichiers .py présent dans le dossier 
+from get_path import read_file_path
+from files import read_files, open_file, save_file
+from reset import reset_window
+from graph import generate_graph
+from settings import setting_canvas
+
+
 def alert():
     messagebox.showinfo("Say Hello", "Hello World")
-
+    
+    
 def mise_a_jour_interface():
+    fichier1 = read_file_path(1)
+    fichier2 = read_file_path(2)
+   
+    
+    #Nettoyage du canves affichant les adresses
     can.delete(ALL)
+    
+    #Ici, on regarde si le chemin du fichier est vide, si c'est le cas, on affiche un message d'attention, sinon on affiche le chemin du fichier.
     if fichier1 != "":
         text_1=can.create_text(400,10,text=fichier1,fill="black")
     else:
-        text_1=can.create_text(400,10,text="No original file selected",fill="red")
+        text_1=can.create_text(400,10,text="Warning : No original file selected",fill="red")
     if fichier2 != "":
         text_2=can.create_text(400,30,text=fichier2,fill="black")
     else: 
-        text_2=can.create_text(400,30,text="No final file selected",fill="red")
+        text_2=can.create_text(400,30,text="Warning : No final file selected",fill="red")
     fenetre.update_idletasks()
 
-def generation_graphe():
-    global fichier1
-    global fichier2
-    global reel1
-    global imaginaire1
-    global reel2
-    global imaginaire2
-    global dimension
-    global graphique
-    
-    plt.figure(1, figsize=(8, 6))
-    plt.subplot(1, 1, 1)
-    if dimension == 2:
-        if fichier1 != "":
-            plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o', s = 200, label="Original solution")
-            graphique = True
-        if fichier2 != "":
-            plt.scatter(reel2, imaginaire2, c = 'red', marker = '+', s = 200, label="Final solution")
-            graphique = True
-        
-    else:
-        if dimension == 1:
-            
-            if fichier1 != "":
-                plt.scatter(reel1, imaginaire1, c = 'black', marker = 'o', s = 200, label="Original solution")
-                graphique = True
-            if fichier2 != "":
-                plt.scatter(reel2, imaginaire2, c = 'red', marker = '+', s = 200, label="Final solution")
-                graphique = True
-    if graphique == True :
-        plt.legend(loc='best')
-        plt.savefig('data/graphic_brut.png', dpi=500)
-        plt.show()
+
     
     
 def affichage_fichier():
-    global graphique
     
+    
+    dimension = read_files()
+    if dimension < 1 :
+        return
+    graphique = generate_graph(dimension)
     try:
         i = 0
         with open("sys/window.reso", "r") as f:
@@ -87,7 +77,7 @@ def affichage_fichier():
                 i = i + 1
                 
     except FileNotFoundError:
-        messagebox.showwarning("Error","Can not find windows.reso file")
+        messagebox.showerror("Error","Can not find windows.reso file")
         return
     
     
@@ -107,94 +97,12 @@ def affichage_fichier():
         
         fenetre.update_idletasks()
         fenetre.update()
+        menubar.entryconfigure(2, state=NORMAL)
         
     else:
-        messagebox.showwarning("Error","Can not display the graphic")
+        messagebox.showerror("Error","Can not display the graphic")
 
         
-def lecture_fichier():
-    global fichier1
-    global fichier2
-    global reel1
-    global imaginaire1
-    global reel2
-    global imaginaire2
-    global dimension
-    exp = r"[0-9]+(\.)?[0-9]*"
-    # Booléen qui permet de stocker si on a déjà rencontré la ligne de la dimension.
-    premiere_ligne = False
-    if fichier1 == "" and fichier2 == "" :
-        messagebox.showwarning("Erreur","Aucun fichier n'a été ouvert")
-    else:
-        if fichier1 != "":
-            with open(fichier1, "r") as f:
-                for line in f.readlines():
-                    donnees = line.split()
-                    
-                    #On regarde si le premier caractère n'est pas un espace est un chiffre
-                    print(re.match(exp, donnees[0]))
-                    if re.match(exp, donnees[0]) is not None:
-                        if premiere_ligne == False:
-                            premiere_ligne = True
-                            dimension = 0
-                            for x in line.split(" "):
-                                if re.match(exp, x):
-                                    dimension += 1
-                            dimension = dimension - 1
-                            print("Dimension : ", dimension, "premiere_ ligne : ", premiere_ligne)
-                            #On créé les vecteurs qui stockera les informations a afficher
-                            reel1 = []
-                            imaginaire1 = []
-                            
-                        else:
-                            reel1.append(Decimal(donnees[1]))
-                            if dimension == 2:
-                                imaginaire1.append(Decimal(donnees[2]))
-                            else:
-                                imaginaire1.append(0)
-                                
-            np.savetxt(r'data/r1.vec', reel1)
-            np.savetxt(r'data/i1.vec', imaginaire1)
-        else:                
-            messagebox.showwarning("Erreur","Le fichier 1 n'est pas chargé")   
-        
-        
-        premiere_ligne = False
-        if fichier2 != "":
-            with open(fichier2, "r") as f:
-                for line in f.readlines():
-                    donnees = line.split()
-                    
-                    #On regarde si le premier caractère n'est pas un espace est un chiffre
-                    print(re.match(exp, donnees[0]))
-                    if re.match(exp, donnees[0]) is not None:
-                        if premiere_ligne == False:
-                            premiere_ligne = True
-                            dimension = 0
-                            for x in line.split(" "):
-                                if re.match(exp, x):
-                                    dimension += 1
-                            dimension = dimension - 1
-                            print("Dimension : ", dimension, "premiere_ ligne : ", premiere_ligne)
-                            #On créé les vecteurs qui stockera les informations a afficher
-                            reel2 = []
-                            imaginaire2 = []
-                            
-                        else:
-                            reel2.append(Decimal(donnees[1]))
-                            print("tableau reel : ",reel2)
-                            if dimension == 2:
-                                imaginaire2.append(Decimal(donnees[2]))
-                                print("tableau imaginaire : ",imaginaire2)
-                            else:
-                                imaginaire2.append(0)
-                                
-            np.savetxt(r'data/r2.vec', reel2)
-            np.savetxt(r'data/i2.vec', imaginaire2)
-        else:                
-            messagebox.showwarning("Erreur","Le fichier 2 n'est pas chargé")
-        generation_graphe()
-        affichage_fichier()
 
 
                         
@@ -203,69 +111,18 @@ def lecture_fichier():
     
 
 def ouvrir_fichier1():
-    global graphique
-    global fichier1 
-    fichier_precedent = fichier1
-    fichier1 = filedialog.askopenfilename(filetypes=[('Fichier Texte','.txt')])
-    if fichier_precedent != fichier2 :
-        graphique = False
-    if fichier2 == "" and fichier1 != "":
-        answer = messagebox.askyesno("Ouvrir fichier Final","Voulez-vous ouvrir le fichier Final maintenant ?")
-        if answer == True:
-            ouvrir_fichier2()
+    open_file(1)
     mise_a_jour_interface()
+    
     
     
 def ouvrir_fichier2():
-    global graphique
-    global fichier2
-    fichier_precedent = fichier2
-    fichier2 = filedialog.askopenfilename(filetypes=[('Fichier Texte','.txt')])
-    if fichier_precedent != fichier2 :
-        graphique = False
-    if fichier1 == "" and fichier2 != "":
-        answer = messagebox.askyesno("Ouvrir fichier Initial","Voulez-vous ouvrir le fichier Initial maintenant ?")
-        if answer == True:
-            ouvrir_fichier1()
-    mise_a_jour_interface()
-    
-def reinitialisation():
-    global graphique
-    global fichier1, fichier2
-    fichier1 = ""
-    fichier2 = ""
-    can.delete(ALL)
-    graphique = False
-    text_1=can.create_text(400,10,text="Warning : No original file selected",fill="red")
-    text_2=can.create_text(400,30,text="Warning : No final file selected",fill="red")
-    
-    can_plot.delete(ALL)
-    text_image =can_plot.create_text(400, 300, text="please select a file then click on Run (File->Run)")
+   open_file(2)
+   mise_a_jour_interface()
 
-def ouverture_menu(fenetre):
-    menubar = Menu(fenetre)
-    #On créé le menu déroulant 1 : Fichier
-    menu1 = Menu(menubar, tearoff=0)
-    menu1.add_command(label="Open original file", command=ouvrir_fichier1)
-    menu1.add_command(label="Open final file", command=ouvrir_fichier2)
-    menu1.add_separator()
-    menu1.add_command(label="Run & display", command=lecture_fichier)
-    menu1.add_separator()
-    menu1.add_command(label="Reset", command=reinitialisation)
-    menu1.add_command(label="Exit", command=fenetre.quit)
-    menubar.add_cascade(label="File", menu=menu1)
+def reset_window_launcher():
+    reset_window(can, can_plot, menubar)
     
-    #On créé le menu déroulant 2 : paramètres
-    menu2 = Menu(menubar, tearoff=0)
-    menu2.add_command(label="Canvas", command=alert)
-    menubar.add_cascade(label="Settings", menu=menu2)
-    
-    #On créé le menu déroulant 3 : Aide
-    menu3 = Menu(menubar, tearoff=0)
-    menu3.add_command(label="About...", command=about)
-    menubar.add_cascade(label="Help", menu=menu3)
-    
-    fenetre.config(menu=menubar)
     
 def about():
     messagebox.showinfo("About...", "Implementation of a user interface for the SMG2S project: https://github.com/brunowu/SMG2S")
@@ -276,28 +133,50 @@ def about():
 fenetre = Tk()
 fenetre.title("UI SMG2S")
 fenetre.configure(bg = "white")
-fichier1 = ""
-fichier2 = ""
 dimension = 0
 dic={}
 
-sauvegarde = False
-graphique = False
-reel1 = []
-imaginaire1 = []
-reel2 = []
-imaginaire2 = []
+def set_canvas_launcher():
+    setting_canvas(fenetre)
+
+
+
+
+menubar = Menu(fenetre)
+#On créé le menu déroulant 1 : Fichier
+menu1 = Menu(menubar, tearoff=0)
+menu1.add_command(label="Open original file", command=ouvrir_fichier1)
+menu1.add_command(label="Open final file", command=ouvrir_fichier2)
+menu1.add_separator()
+menu1.add_command(label="Run & display", command=affichage_fichier)
+menu1.add_separator()
+menu1.add_command(label="Reset", command=reset_window_launcher)
+menu1.add_command(label="Exit", command=fenetre.quit)
+menubar.add_cascade(label="File", menu=menu1)
+
+menu2 = Menu(menubar, tearoff=0)
+menu2.add_command(label="Save", command=save_file)
+menubar.add_cascade(label="Save", menu=menu2)
+
+#On créé le menu déroulant 3 : paramètres
+menu3 = Menu(menubar, tearoff=0)
+menu3.add_command(label="Canvas", command=set_canvas_launcher)
+menubar.add_cascade(label="Settings", menu=menu3)
+
+#On créé le menu déroulant 4 : Aide
+menu4 = Menu(menubar, tearoff=0)
+menu4.add_command(label="About...", command=about)
+menubar.add_cascade(label="Help", menu=menu4)
+
+fenetre.config(menu=menubar)
 
 can=Canvas(fenetre,width=800,height=40,background='white')
 can.pack()
-text_1=can.create_text(400,10,text="Warning : No original file selected",fill="red")
-text_2=can.create_text(400,30,text="Warning : No final file selected",fill="red")
-
 can_plot=Canvas(fenetre,width=800,height=600,background='white')
 can_plot.pack()
-text_image =can_plot.create_text(400, 300, text="please select a file then click on Run (File->Run)")
+reset_window_launcher()
 
-ouverture_menu(fenetre)
+#ouverture_menu(fenetre)
 
 # On démarre la boucle Tkinter qui s'interompt quand on ferme la fenêtre
 fenetre.mainloop()
